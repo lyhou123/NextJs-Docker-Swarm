@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  nextjs-app:
+    build:
+      context: .  # Use the current directory as the build context
+      dockerfile: Dockerfile  # Optional: if your Dockerfile has a different name
+    image:  nextjs_stack_nextjs-app:latest  # This specifies the name and tag of the image
+    ports:
+      - "3000:3000"
+    secrets:
+      - db_password
+    entrypoint: ["/bin/sh", "-c", "export DB_PASSWORD=$$(cat /run/secrets/db_password) && npm run start"]
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+
+secrets:
+  db_password:
+    external: true
